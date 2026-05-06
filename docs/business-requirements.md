@@ -11,6 +11,7 @@
             Edit category details
             Delete a category
             View all categories
+            Listing categories with their tasks count and status -> Single responsibility principle
 
     - Task:
         - properties:
@@ -53,6 +54,7 @@
     - As a user, I want to add a new task to a category so that I can keep track of my to-dos.
     - As a user, I want to mark a task as completed so that I can see which tasks I have finished.
     - As a user, I want to view all tasks in a category so that I can see what needs to be done.
+    - As a user, I want to view all tasks count and status in a category so that I can see what needs to be done.
     - As a user, I want to edit the details of a task so that I can update its information.
     - As a user, I want to delete a task so that I can remove tasks that are no longer relevant.
     - As a user, I want to set a due date for a task so that I can manage my time effectively.
