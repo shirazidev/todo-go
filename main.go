@@ -44,7 +44,11 @@ func runCommand(command string) {
 		fmt.Printf("User storage: %+v", userStorage)
 		os.Exit(0)
 	default:
-		fmt.Println("Invalid command: ", command)
+		if command == "" {
+			fmt.Println("no command provided!")
+		} else {
+			fmt.Println("Invalid command: ", command)
+		}
 	}
 }
 
