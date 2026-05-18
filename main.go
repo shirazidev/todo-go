@@ -21,6 +21,10 @@ func main() {
 	command := flag.String("command", "", "command to execute")
 	flag.Parse()
 
+	if *command != "register-user" && *command != "exit" {
+
+	}
+
 	for {
 		scanner := bufio.NewScanner(os.Stdin)
 		runCommand(*command)
@@ -28,8 +32,8 @@ func main() {
 		scanner.Scan()
 		*command = scanner.Text()
 	}
-
 }
+
 func runCommand(command string) {
 	switch command {
 	case "create-task":
@@ -103,14 +107,25 @@ func registerUser() {
 }
 
 func login() {
-	scanner := bufio.NewScanner(os.Stdin)
-	var email, password string
-	fmt.Println("Enter the email of the user: ")
-	scanner.Scan()
-	email = scanner.Text()
-	fmt.Println("Enter the password of the user: ")
-	scanner.Scan()
-	password = scanner.Text()
-	fmt.Println("email: ", email, "password: ", password)
+	// get email and password from user to login
+	fmt.Println("You must login first!")
+	sc := bufio.NewScanner(os.Stdin)
+	fmt.Println("Please enter your email: ")
+	sc.Scan()
+	email := sc.Text()
+	fmt.Println("Please enter your password: ")
+	sc.Scan()
+	password := sc.Text()
+	// if there is a user record with corresponding data, allow user to continue!
+	notFound := true
+	for _, user := range userStorage {
+		if user.Email == email || user.Password == password {
+			notFound = false
+		}
+	}
+	if notFound {
+		fmt.Println("There is no user with this credintials!")
+		return
+	}
 
 }
