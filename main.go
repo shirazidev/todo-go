@@ -13,17 +13,24 @@ type User struct {
 	Password string
 }
 
+type Task struct {
+	ID          uint
+	Title       string
+	Description string
+	DueDate     string
+	IsCompleted bool
+	CategoryId  uint
+	UserId      int
+}
+
 var userStorage []User
+var AuthenticatedUser *User
 
 func main() {
 	fmt.Println("Welcome to TODO App!")
 
 	command := flag.String("command", "", "command to execute")
 	flag.Parse()
-
-	if *command != "register-user" && *command != "exit" {
-
-	}
 
 	for {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -35,6 +42,10 @@ func main() {
 }
 
 func runCommand(command string) {
+	if command != "register-user" && command != "exit" && AuthenticatedUser == nil {
+		login()
+
+	}
 	switch command {
 	case "create-task":
 		createTask()
@@ -57,6 +68,7 @@ func runCommand(command string) {
 }
 
 func createTask() {
+	fmt.Println("Authenticated user: ", AuthenticatedUser.Email)
 	scanner := bufio.NewScanner(os.Stdin)
 
 	var name, duedate, category string
@@ -90,6 +102,8 @@ func createCategory() {
 }
 
 func registerUser() {
+	fmt.Println("===== Registering user =====")
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	var email, password string
@@ -108,7 +122,7 @@ func registerUser() {
 
 func login() {
 	// get email and password from user to login
-	fmt.Println("You must login first!")
+	fmt.Println("===== Login =====")
 	sc := bufio.NewScanner(os.Stdin)
 	fmt.Println("Please enter your email: ")
 	sc.Scan()
@@ -119,13 +133,17 @@ func login() {
 	// if there is a user record with corresponding data, allow user to continue!
 	notFound := true
 	for _, user := range userStorage {
-		if user.Email == email || user.Password == password {
+		if user.Email == email && user.Password == password {
 			notFound = false
+			AuthenticatedUser = &user
+
+			break
 		}
 	}
 	if notFound {
-		fmt.Println("There is no user with this credintials!")
-		return
+		fmt.Println("Invalid credentials!")
+
+		login()
 	}
 
 }
