@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	shirazidevLogo "todo-app/shirazidev-logo"
 )
 
 type User struct {
@@ -30,6 +31,7 @@ var userStorage []User
 var AuthenticatedUser *User
 
 func main() {
+	clearScreen()
 	fmt.Println("Welcome to TODO App!")
 
 	command := flag.String("command", "", "command to execute")
@@ -48,15 +50,26 @@ func runCommand(command string) {
 	if command != "register-user" && command != "exit" && AuthenticatedUser == nil {
 		login()
 
+		if AuthenticatedUser == nil {
+			return
+		}
+
 	}
 	switch command {
 	case "create-task":
+		clearScreen()
 		createTask()
+	case "list-tasks":
+		clearScreen()
+		listTasks()
 	case "create-category":
+		clearScreen()
 		createCategory()
 	case "register-user":
+		clearScreen()
 		registerUser()
 	case "login":
+		clearScreen()
 		login()
 	case "exit":
 		fmt.Printf("User storage: %+v", userStorage)
@@ -71,9 +84,6 @@ func runCommand(command string) {
 }
 
 func createTask() {
-	if AuthenticatedUser != nil {
-		AuthenticatedUser.print()
-	}
 	fmt.Println("Authenticated user: ", AuthenticatedUser.Email)
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -99,6 +109,7 @@ func createTask() {
 		DueDate:     duedate,
 		CategoryId:  0,
 		UserId:      AuthenticatedUser.Id,
+		IsCompleted: false,
 	}
 	taskStorage = append(taskStorage, t)
 
@@ -154,8 +165,6 @@ func login() {
 			notFound = false
 			AuthenticatedUser = &user
 			clearScreen()
-			fmt.Println("\nLogged in successfully!")
-
 			break
 		}
 	}
@@ -165,6 +174,17 @@ func login() {
 		login()
 	}
 
+}
+func listTasks() {
+	for _, t := range taskStorage {
+		if t.UserId == AuthenticatedUser.Id {
+			fmt.Println("\nId: ", t.ID, "\nTitle: ", t.Title, "\nDescription: ", t.Description)
+			fmt.Println("========")
+		} else {
+			fmt.Println("Not found: ", t.UserId)
+			break
+		}
+	}
 }
 
 func (u User) print() {
@@ -180,6 +200,12 @@ func clearScreen() {
 	}
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
+	shirazidevLogo.Plogo()
+	if AuthenticatedUser != nil {
+		fmt.Printf(``)
+		fmt.Println("=========\nLogged in!")
+		fmt.Printf("User ID: %d, Email: %v\n========\n", AuthenticatedUser.Id, AuthenticatedUser.Email)
+	}
 	if err != nil {
 		return
 	}
