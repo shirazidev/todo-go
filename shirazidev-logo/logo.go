@@ -1,0 +1,40 @@
+package shirazidev_logo
+
+import (
+	"fmt"
+	"strings"
+)
+
+// shirazidev — terminal banner (ANSI Shadow), vertical teal->indigo gradient.
+var logo = []string{
+	`███████╗██╗  ██╗██╗██████╗  █████╗ ███████╗██╗██████╗ ███████╗██╗   ██╗`,
+	`██╔════╝██║  ██║██║██╔══██╗██╔══██╗╚══███╔╝██║██╔══██╗██╔════╝██║   ██║`,
+	`███████╗███████║██║██████╔╝███████║  ███╔╝ ██║██║  ██║█████╗  ██║   ██║`,
+	`╚════██║██╔══██║██║██╔══██╗██╔══██║ ███╔╝  ██║██║  ██║██╔══╝  ╚██╗ ██╔╝`,
+	`███████║██║  ██║██║██║  ██║██║  ██║███████╗██║██████╔╝███████╗ ╚████╔╝ `,
+	`╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚══════╝  ╚═══╝  `,
+}
+
+type rgb struct{ r, g, b int }
+
+func lerp(a, b, t int) int { return a + (b-a)*t/100 }
+
+func Plogo() {
+	const reset = "\033[0m"
+	start := rgb{46, 196, 182} // #2EC4B6 teal
+	end := rgb{91, 110, 247}   // #5B6EF7 indigo
+
+	n := len(logo)
+	fmt.Println()
+	for i, line := range logo {
+		t := 0
+		if n > 1 {
+			t = i * 100 / (n - 1)
+		}
+		c := rgb{lerp(start.r, end.r, t), lerp(start.g, end.g, t), lerp(start.b, end.b, t)}
+		fmt.Printf("   \033[1;38;2;%d;%d;%dm%s%s\n", c.r, c.g, c.b, line, reset)
+	}
+	tagline := "full-stack · scraping · bilingual delivery"
+	fmt.Printf("   \033[2;38;2;%d;%d;%dm%s%s%s\n\n",
+		end.r, end.g, end.b, strings.Repeat(" ", 10), tagline, reset)
+}
