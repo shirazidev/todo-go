@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 )
 
 type User struct {
@@ -23,6 +25,7 @@ type Task struct {
 	UserId      int
 }
 
+var taskStorage []Task
 var userStorage []User
 var AuthenticatedUser *User
 
@@ -68,24 +71,38 @@ func runCommand(command string) {
 }
 
 func createTask() {
+	if AuthenticatedUser != nil {
+		AuthenticatedUser.print()
+	}
 	fmt.Println("Authenticated user: ", AuthenticatedUser.Email)
 	scanner := bufio.NewScanner(os.Stdin)
 
-	var name, duedate, category string
+	var name, duedate, description string
+	//var categoryId uint
 
 	fmt.Println("Enter the name of the task: ")
 	scanner.Scan()
 	name = scanner.Text()
 
-	fmt.Println("Enter the category of the task: ")
+	fmt.Println("Enter the description of the task: ")
 	scanner.Scan()
-	category = scanner.Text()
+	description = scanner.Text()
 
 	fmt.Println("Enter the duedate of the task: ")
 	scanner.Scan()
 	duedate = scanner.Text()
 
-	fmt.Println("title: ", name, " due date: ", duedate, " category: ", category)
+	t := Task{
+		ID:          uint(len(taskStorage) + 1),
+		Title:       name,
+		Description: description,
+		DueDate:     duedate,
+		CategoryId:  0,
+		UserId:      AuthenticatedUser.Id,
+	}
+	taskStorage = append(taskStorage, t)
+
+	fmt.Println("title: ", t.Title, " due date: ", t.DueDate, " id: ", t.ID, " userId: ", t.UserId)
 }
 
 func createCategory() {
@@ -136,6 +153,8 @@ func login() {
 		if user.Email == email && user.Password == password {
 			notFound = false
 			AuthenticatedUser = &user
+			clearScreen()
+			fmt.Println("\nLogged in successfully!")
 
 			break
 		}
@@ -146,4 +165,22 @@ func login() {
 		login()
 	}
 
+}
+
+func (u User) print() {
+	fmt.Println("Id: ", u.Id, "Email: ", u.Email)
+}
+
+func clearScreen() {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		return
+	}
 }
