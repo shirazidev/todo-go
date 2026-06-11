@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	shirazidevLogo "todo-app/shirazidev-logo"
 )
 
@@ -22,12 +23,20 @@ type Task struct {
 	Description string
 	DueDate     string
 	IsCompleted bool
-	CategoryId  uint
+	CategoryId  int
 	UserId      int
+}
+
+type TaskCategory struct {
+	ID     int
+	Title  string
+	Color  string
+	UserId int
 }
 
 var taskStorage []Task
 var userStorage []User
+var categoryStorage []TaskCategory
 var AuthenticatedUser *User
 
 func main() {
@@ -98,6 +107,27 @@ func createTask() {
 	scanner.Scan()
 	description = scanner.Text()
 
+	fmt.Println("Enter the Category Id of the task: ")
+	scanner.Scan()
+	cid := scanner.Text()
+
+	categoryID, err := strconv.Atoi(cid)
+	if err != nil {
+		fmt.Println("Invalid Category Id", err)
+		return
+	}
+	isFound := false
+	for _, c := range categoryStorage {
+		if c.ID == categoryID && c.UserId == AuthenticatedUser.Id {
+			isFound = true
+			break
+		}
+		if !isFound {
+			fmt.Println("Invalid Category Id", err)
+			return
+		}
+	}
+
 	fmt.Println("Enter the duedate of the task: ")
 	scanner.Scan()
 	duedate = scanner.Text()
@@ -107,7 +137,7 @@ func createTask() {
 		Title:       name,
 		Description: description,
 		DueDate:     duedate,
-		CategoryId:  0,
+		CategoryId:  categoryID,
 		UserId:      AuthenticatedUser.Id,
 		IsCompleted: false,
 	}
@@ -126,7 +156,15 @@ func createCategory() {
 	fmt.Println("Enter the color of the category: ")
 	scanner.Scan()
 	color = scanner.Text()
-	fmt.Println("category name: ", title, " category color: ", color)
+
+	c := TaskCategory{
+		ID:     len(categoryStorage) + 1,
+		Title:  title,
+		Color:  color,
+		UserId: AuthenticatedUser.Id,
+	}
+	categoryStorage = append(categoryStorage, c)
+	fmt.Println("Category created successfully!")
 }
 
 func registerUser() {
