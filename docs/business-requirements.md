@@ -1,6 +1,5 @@
 # Entities
 
-
     - Category:
         - properties:
             title: string
@@ -45,11 +44,8 @@
             Delete a user
             User authentication and authorization
 
+## UserStories
 
-
-
-
-# User Stories
     - As a user, I want to create a new category so that I can organize my tasks.
     - As a user, I want to add a new task to a category so that I can keep track of my to-dos.
     - As a user, I want to mark a task as completed so that I can see which tasks I have finished.
