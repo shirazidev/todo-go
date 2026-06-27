@@ -184,6 +184,14 @@ func registerUser() {
 
 	u := User{Id: len(userStorage) + 1, Email: email, Password: password}
 	userStorage = append(userStorage, u)
+
+	file, err := os.Create("users.txt")
+	if err != nil {
+		fmt.Println("Error writing to file: ", err)
+	}
+
+	file.Write([]byte("New user record!"))
+
 }
 
 func login() {
