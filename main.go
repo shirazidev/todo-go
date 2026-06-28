@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 	shirazidevLogo "todo-app/shirazidev-logo"
 )
 
@@ -40,10 +41,12 @@ var userStorage []User
 var categoryStorage []TaskCategory
 var AuthenticatedUser *User
 
+const uPath string = "users.txt"
+
 func main() {
-	loadUserStorageFromFile()
 	clearScreen()
 	fmt.Println("Welcome to TODO App!")
+	loadUserStorageFromFile()
 
 	command := flag.String("command", "", "command to execute")
 	flag.Parse()
@@ -193,10 +196,8 @@ func registerUser() {
 	var file *os.File
 
 	// save user data to storage
-	path := "users.txt"
-
 	var oErr error
-	file, oErr = os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
+	file, oErr = os.OpenFile(uPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
 	if oErr != nil {
 		fmt.Println("I cannot open the file!", oErr)
 		return
@@ -274,5 +275,55 @@ func clearScreen() {
 	}
 	if err != nil {
 		return
+	}
+}
+
+func loadUserStorageFromFile() {
+	file, err := os.Open(uPath)
+	if err != nil {
+		fmt.Println("Cannot access user records: ", err)
+	}
+	var data = make([]byte, 10240)
+	_, oErr := file.Read(data)
+	if oErr != nil {
+		fmt.Println("Cannot get user records: ", oErr)
+	}
+
+	var dataStr string = string(data)
+
+	userSlice := strings.Split(dataStr, "\n")
+
+	for _, u := range userSlice {
+		u = strings.TrimSpace(u)
+		if u == "" {
+			continue
+		}
+		var user User
+		userFields := strings.Split(u, ", ")
+
+		for _, field := range userFields {
+			values := strings.SplitN(field, ": ", 2)
+			if len(values) != 2 {
+				fmt.Println("field is not valid, skipping... ", field)
+				continue
+			}
+			fieldName := strings.ReplaceAll(values[0], " ", "")
+			fieldValue := values[1]
+			switch fieldName {
+			case "ID":
+				id, err := strconv.Atoi(fieldValue)
+				if err != nil {
+					fmt.Println("Cannot convert ID to int: ", err)
+				}
+				user.Id = id
+			case "email":
+				user.Email = fieldValue
+			case "password":
+				user.Password = fieldValue
+			case "name":
+				user.Name = fieldValue
+			}
+		}
+		fmt.Println(user)
 	}
 }
