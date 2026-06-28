@@ -14,6 +14,7 @@ import (
 type User struct {
 	Id       int
 	Email    string
+	Name     string
 	Password string
 }
 
@@ -40,6 +41,7 @@ var categoryStorage []TaskCategory
 var AuthenticatedUser *User
 
 func main() {
+	loadUserStorageFromFile()
 	clearScreen()
 	fmt.Println("Welcome to TODO App!")
 
@@ -172,8 +174,11 @@ func registerUser() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	var email, password string
+	var email, password, name string
 
+	fmt.Println("Enter your name: ")
+	scanner.Scan()
+	name = scanner.Text()
 	fmt.Println("Enter the email of the user: ")
 	scanner.Scan()
 	email = scanner.Text()
@@ -182,15 +187,30 @@ func registerUser() {
 	password = scanner.Text()
 	defer fmt.Println("email: ", email, "password: ", password)
 
-	u := User{Id: len(userStorage) + 1, Email: email, Password: password}
+	u := User{Id: len(userStorage) + 1, Email: email, Password: password, Name: name}
 	userStorage = append(userStorage, u)
 
-	file, err := os.Create("users.txt")
-	if err != nil {
-		fmt.Println("Error writing to file: ", err)
+	var file *os.File
+
+	// save user data to storage
+	path := "users.txt"
+
+	var oErr error
+	file, oErr = os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0777)
+	if oErr != nil {
+		fmt.Println("I cannot open the file!", oErr)
+		return
 	}
 
-	file.Write([]byte("New user record!"))
+	data := fmt.Sprintf("ID: %d, email: %s, name: %s, password: %s\n", u.Id, u.Email, u.Name, u.Password)
+
+	var b = []byte(data)
+	_, wErr := file.Write(b)
+	if wErr != nil {
+		fmt.Println("Write error: ", wErr)
+		return
+	}
+	file.Close()
 
 }
 
