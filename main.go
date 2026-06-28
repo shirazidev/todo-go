@@ -326,4 +326,5 @@ func loadUserStorageFromFile() {
 		}
 		fmt.Println(user)
 	}
+	file.Close()
 }
