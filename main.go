@@ -79,7 +79,7 @@ func main() {
 }
 
 func runCommand(command string) {
-	if command != "register-user" && command != "exit" && AuthenticatedUser == nil {
+	if command != "register-user" && command != "login" && command != "exit" && AuthenticatedUser == nil {
 		login()
 
 		if AuthenticatedUser == nil {
@@ -235,8 +235,6 @@ func login() {
 	}
 	if notFound {
 		fmt.Println("Invalid credentials!")
-
-		login()
 	}
 
 }
