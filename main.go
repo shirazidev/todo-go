@@ -6,12 +6,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
 	shirazidevLogo "todo-app/shirazidev-logo"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -200,15 +203,18 @@ func registerUser() {
 	fmt.Println("Enter your name: ")
 	scanner.Scan()
 	name = scanner.Text()
+
 	fmt.Println("Enter the email of the user: ")
 	scanner.Scan()
 	email = scanner.Text()
+
 	fmt.Println("Enter the password of the user: ")
 	scanner.Scan()
 	password = scanner.Text()
-	defer fmt.Println("email: ", email, "password: ", password)
 
-	u := User{Id: len(userStorage) + 1, Email: email, Password: password, Name: name}
+	hashedPassword := hashThePassword(password)
+
+	u := User{Id: len(userStorage) + 1, Email: email, Password: hashedPassword, Name: name}
 	userStorage = append(userStorage, u)
 	saveUser(u)
 }
@@ -226,7 +232,8 @@ func login() {
 	// if there is a user record with corresponding data, allow user to continue!
 	notFound := true
 	for _, user := range userStorage {
-		if user.Email == email && user.Password == password {
+		var isValid bool = comparePassword(user.Password, password)
+		if user.Email == email && isValid {
 			notFound = false
 			AuthenticatedUser = &user
 			clearScreen()
@@ -387,4 +394,23 @@ func saveUser(u User) {
 		fmt.Println("Write error: ", wErr)
 		return
 	}
+}
+
+func hashThePassword(password string) string {
+	pass := []byte(password)
+	hash, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(hash)
+}
+
+func comparePassword(hashed string, password string) bool {
+	pass := []byte(password)
+	hash := []byte(hashed)
+	err := bcrypt.CompareHashAndPassword(hash, pass)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return true
 }
