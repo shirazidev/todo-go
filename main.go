@@ -232,8 +232,7 @@ func login() {
 	// if there is a user record with corresponding data, allow user to continue!
 	notFound := true
 	for _, user := range userStorage {
-		var isValid bool = comparePassword(user.Password, password)
-		if user.Email == email && isValid {
+		if user.Email == email && comparePassword(user.Password, password) {
 			notFound = false
 			AuthenticatedUser = &user
 			clearScreen()
@@ -406,11 +405,6 @@ func hashThePassword(password string) string {
 }
 
 func comparePassword(hashed string, password string) bool {
-	pass := []byte(password)
-	hash := []byte(hashed)
-	err := bcrypt.CompareHashAndPassword(hash, pass)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return true
+	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
+	return err == nil
 }
