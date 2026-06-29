@@ -1,3 +1,6 @@
 .idea
 todo
 users.txt
+/todo-app
+/todo-app.exe
+/dist/
